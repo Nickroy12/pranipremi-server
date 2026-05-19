@@ -50,11 +50,44 @@ async function run() {
         const result = await petsCollection.deleteOne(query)
         res.send(result)
      })
-     app.post('/pet', async(req , res )=>{
-      const newPet = req.body
-        const result = await petsCollection.insertOne(query)
-        res.send(result)
-     })
+app.patch('/pets/:petId', async (req, res) => {
+  const updatePet = req.body;
+
+  const query = {
+    _id: new ObjectId(req.params.petId),
+  };
+
+  const updatedDoc = {
+    $set: {
+      petName: updatePet.petName,
+      species: updatePet.species,
+      breed: updatePet.breed,
+      age: parseInt(updatePet.age),
+      gender: updatePet.gender,
+      vaccinationStatus: updatePet.vaccinationStatus,
+      imageUrl: updatePet.imageUrl,
+      location: updatePet.location,
+      adoptionFee: parseInt(updatePet.adoptionFee),
+      ownerEmail: updatePet.ownerEmail,
+      description: updatePet.description,
+    },
+  };
+
+  const result = await petsCollection.updateOne(query, updatedDoc);
+
+  res.send(result);
+});
+app.post('/pets', async (req, res) => {
+  try {
+    const newPet = req.body
+
+    const result = await petsCollection.insertOne(newPet)
+
+    res.send(result)
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to insert pet' })
+  }
+})
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
