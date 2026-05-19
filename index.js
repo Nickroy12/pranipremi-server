@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const dotenv = require('dotenv')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors')
 dotenv.config()
 const port = process.env.PORT || 5000
@@ -34,7 +34,23 @@ async function run() {
 
         res.json(cursor)
      })
-     app.
+     app.get('/pets/:petId', async(req , res)=>{
+        const {petId} = req.params;
+        const query = {
+            _id:new ObjectId(petId)
+        }
+        const result = await petsCollection.findOne(query)
+        res.send(result)
+     })
+     app.delete('/pets/:petId', async(req , res)=>{
+        const {petId} = req.params;
+        const query = {
+            _id:new ObjectId(petId)
+        }
+        const result = await petsCollection.deleteOne(query)
+        res.send(result)
+     })
+     app.post()
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
