@@ -25,15 +25,44 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+   
     const db = client.db('pranipremidb');
     const petsCollection = db.collection('petsinfo') 
     await client.connect();
-     app.get('/pets' , async(req , res)=>{
-        const cursor = await petsCollection.find().toArray()
+app.get('/pets', async (req, res) => {
+  try {
+    const { name, species } = req.query;
 
-        res.json(cursor)
-     })
+    let query = {};
+
+    
+    if (name) {
+      query.petName = {
+        $regex: name,
+        $options: "i", 
+      };
+    }
+
+ 
+    if (species) {
+      const speciesArray = species.split(","); 
+
+      query.species = {
+        $in: speciesArray,
+      };
+    }
+
+    const result = await petsCollection.find(query).toArray();
+
+    res.send(result);
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "Failed to fetch pets",
+      error: error.message,
+    });
+  }
+});
      app.get('/pets/:petId', async(req , res)=>{
         const {petId} = req.params;
         const query = {
